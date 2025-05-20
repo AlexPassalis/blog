@@ -1,0 +1,227 @@
+{
+  "name": "Cloudflare IP's check",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-440, -60],
+      "id": "0e5a3f8a-2df0-401d-8035-4d365198a0fb",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://www.cloudflare.com/ips-v6/#",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-220, 40],
+      "id": "2e3a96ee-8425-40cb-9b39-9f68c297c6e5",
+      "name": "GET ips-v6/#"
+    },
+    {
+      "parameters": {
+        "url": "https://www.cloudflare.com/ips-v4/#",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-220, -160],
+      "id": "e95d7384-ba00-480d-9ce0-2372e6363bc3",
+      "name": "GET ips-v4/#"
+    },
+    {
+      "parameters": {
+        "chatId": "-1002574739381",
+        "text": "Cloudflare's IP's have changed.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [440, -160],
+      "id": "a51e4540-e89b-408a-bff0-f58b9cf593f0",
+      "name": "Telegram",
+      "webhookId": "76adeca9-2999-4cb2-878b-dca5b825967e",
+      "credentials": {
+        "telegramApi": {
+          "id": "LnecKwVUwBsLGgrl",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7cf43d11-82bb-4682-b77d-96628c8b8dd7",
+              "leftValue": "={{ $json.v4changes }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "5f696959-1eee-4faa-a618-223b519902ad",
+              "leftValue": "={{ $json.v6changes }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [220, -60],
+      "id": "2e34dd27-b476-4b8e-8633-f8efea77f220",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "let actual\ntry {\n  actual = items[0].json.data.split('\\n')\n} catch {\n  return [{\n    json: {\n      v4changes: true\n    }\n  }]\n}\n\nconst expected = ['173.245.48.0/20', '103.21.244.0/22', '103.22.200.0/22', '103.31.4.0/22', '141.101.64.0/18', '108.162.192.0/18', '190.93.240.0/20', '188.114.96.0/20', '197.234.240.0/22', '198.41.128.0/17', '162.158.0.0/15', '104.16.0.0/13', '104.24.0.0/14', '172.64.0.0/13', '131.0.72.0/22']\n\nreturn [{\n  json: {\n    v4changes: JSON.stringify(expected) !== JSON.stringify(actual)\n  }\n}]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [0, -160],
+      "id": "68623aaa-074c-42da-867a-0524b11a5248",
+      "name": "Check ips-v4/#"
+    },
+    {
+      "parameters": {
+        "jsCode": "let actual\ntry {\n  actual = items[0].json.data.split('\\n')\n} catch {\n  return [{\n    json: {\n      v6changes: true\n    }\n  }]\n}\n\nconst expected = ['2400:cb00::/32', '2606:4700::/32', '2803:f800::/32', '2405:b500::/32', '2405:8100::/32', '2a06:98c0::/29', '2c0f:f248::/32']\n\nreturn [{\n  json: {\n    v6changes: JSON.stringify(expected) !== JSON.stringify(actual)\n  }\n}]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [0, 40],
+      "id": "fcc6cb46-503f-4200-9895-357015cc1ea0",
+      "name": "Check ips-v6/#"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [440, 40],
+      "id": "a3099d53-3b34-4008-8d4f-3a44112c6d3b",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GET ips-v4/#",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GET ips-v6/#",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET ips-v6/#": {
+      "main": [
+        [
+          {
+            "node": "Check ips-v6/#",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET ips-v4/#": {
+      "main": [
+        [
+          {
+            "node": "Check ips-v4/#",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [[]]
+    },
+    "Check ips-v4/#": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check ips-v6/#": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5f6d1924-40e9-4850-b2a9-846e1a01290c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8e665d7ff88bb32513770a21bce6cd02bd24c4542abce5d0bdb97f9c72d1639c"
+  },
+  "id": "UyexrNzuJcqDoNKx",
+  "tags": []
+}

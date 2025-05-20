@@ -1,0 +1,14 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] },
+    "strict": true,
+    "strictNullChecks": true
+  },
+  "include": [".astro/types.d.ts", "**/*", "../hono/src/lib/better-auth"],
+  // "references": [{ "path": "../hono/tsconfig.json" }],
+  "exclude": ["dist"]
+}

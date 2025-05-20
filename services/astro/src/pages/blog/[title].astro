@@ -1,0 +1,73 @@
+---
+import type { typeBlogPost } from '@/lib/postgres/data/type'
+
+import UserLayout from '@/layouts/UserLayout.astro'
+
+import { redis } from '@/lib/redis'
+import { envServer } from '@/data/env/envServer'
+
+const { title } = Astro.params as { title: string }
+
+let blogPost
+try {
+  const redisBlogPost = await redis.get(title)
+  if (!redisBlogPost) {
+    try {
+      const res = await fetch(`${envServer.HONO_API_URL}/user/blog/${title}`)
+      const body = await res.json()
+      const postgresBlogPost = body?.response as undefined | typeBlogPost
+      console.log('This is the postgresBlogPost: ', postgresBlogPost)
+      if (postgresBlogPost) {
+        blogPost = postgresBlogPost
+        void redis.set(title, JSON.stringify(postgresBlogPost), 'EX', 3600).catch((error) => {
+          console.error(error)
+        })
+      } else {
+        return Astro.redirect('/404')
+      }
+    } catch (error) {
+      console.error(error)
+      return Astro.redirect('/500')
+    }
+  } else {
+    blogPost = JSON.parse(redisBlogPost) as typeBlogPost
+  }
+} catch (error) {
+  console.error(error)
+  return Astro.redirect('/500')
+}
+
+import { Image } from 'astro:assets'
+import { CommentForm } from '@/pages/blog/_CommentForm'
+---
+
+<UserLayout>
+  <Image
+    src={`${envServer.MINIO_BLOG_URL}/blog_posts/${blogPost.image_file}`}
+    alt={`${blogPost.image_description}`}
+    width={640}
+    height={640}
+    layout="constrained"
+    class="mx-auto rounded-md"
+    priority
+  />
+  <h1 class="font-tagesschrift text-center text-2xl text-orange-500 mt-2 mb-4">
+    {blogPost.title}
+  </h1>
+  <p class="text-lg mb-12">{blogPost.content_description}</p>
+  {
+    blogPost.outline.map((chapter) => (
+      <div class="flex flex-col mb-10">
+        <h2 class="text-center text-xl mb-2 text-blue-600">{chapter.title}</h2>
+        <p>{chapter.content}</p>
+      </div>
+    ))
+  }
+  <h2 class="text-center text-xl mb-2 text-blue-600">Conclusion</h2>
+  <p>{blogPost.conclusion}</p>
+  <!-- <CommentForm
+    client:load
+    title={blogPost.title}
+    comments={blogPost.comments}
+  /> -->
+</UserLayout>
