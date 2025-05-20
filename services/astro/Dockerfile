@@ -6,18 +6,14 @@ RUN apk add --no-cache curl
 
 FROM base AS deps
 WORKDIR /app/deps
-COPY /astro/package.json /astro/pnpm-lock.yaml /astro/pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN corepack enable && corepack prepare pnpm@10.11.0 --activate && pnpm i --frozen-lockfile
 
 
 
 FROM deps AS dev
-WORKDIR /app/hono
-COPY /hono/tsconfig.json ./tsconfig.json
-
-WORKDIR /app/astro
-COPY /astro .
-COPY /hono/src/lib/postgres ./astro/src/lib/postgres
+WORKDIR /app
+COPY . .
 COPY --from=deps /app/deps/node_modules ./node_modules
 RUN rm -rf /app/deps
 

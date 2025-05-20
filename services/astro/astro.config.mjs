@@ -8,7 +8,7 @@ import node from '@astrojs/node'
 
 export default defineConfig({
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  adapter: node({ mode: 'middleware' }),
   integrations: [sitemap(), react()],
   prefetch: true,
   image: {
@@ -37,6 +37,13 @@ export default defineConfig({
         ? {
             watch: {
               usePolling: true,
+            },
+          }
+        : {}),
+      ...(envServer.ENVIRONMENT === 'development'
+        ? {
+            proxy: {
+              '/api': 'http://localhost:3000',
             },
           }
         : {}),

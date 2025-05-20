@@ -1,25 +1,15 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro'
 
-import { getAdminSession } from '@/lib/better-auth/isAdmin'
-
 import { envClient } from '@/data/env/envClient'
 import { postgres } from '@/lib/postgres/index'
 import { blog_posts } from '@/lib/postgres/schema'
 import { IsPublishedButton } from '@/pages/admin/blog/_IsPublishedButton'
 
-const session = await getAdminSession(Astro.request.headers)
-if (session === null) {
-  return Astro.redirect('/500')
-} else if (session === false) {
-  return Astro.redirect('/404')
-}
-
 let array
 try {
   array = await postgres.select().from(blog_posts)
 } catch (error) {
-  // NEEDS FIXING
   console.error(error)
   return Astro.redirect('/500')
 }

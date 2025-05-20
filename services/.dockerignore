@@ -1,7 +1,0 @@
-astro/dist/
-astro/.astro/
-astro/.vscode/
-astro/node_modules/
-astro/.dockerignore
-astro/.prettierrc.mjs
-astro/Dockerfile

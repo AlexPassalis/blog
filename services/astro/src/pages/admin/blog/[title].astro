@@ -17,7 +17,6 @@ try {
   const array = await postgres.select().from(blog_posts).where(eq(blog_posts.title, title)).limit(1)
   blogPost = array[0]
 } catch (error) {
-  // NEEDS FIXING
   console.error(error)
   return Astro.redirect('/500')
 }

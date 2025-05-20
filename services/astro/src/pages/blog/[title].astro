@@ -3,7 +3,10 @@ import type { typeBlogPost } from '@/lib/postgres/data/type'
 
 import UserLayout from '@/layouts/UserLayout.astro'
 
-import { redis } from '@/lib/redis'
+import { redis } from '@/lib/redis/index'
+import { postgres } from '@/lib/postgres/index'
+import { blog_posts } from '@/lib/postgres/schema'
+import { and, eq } from 'drizzle-orm'
 import { envServer } from '@/data/env/envServer'
 
 const { title } = Astro.params as { title: string }
@@ -13,13 +16,14 @@ try {
   const redisBlogPost = await redis.get(title)
   if (!redisBlogPost) {
     try {
-      const res = await fetch(`${envServer.HONO_API_URL}/user/blog/${title}`)
-      const body = await res.json()
-      const postgresBlogPost = body?.response as undefined | typeBlogPost
-      console.log('This is the postgresBlogPost: ', postgresBlogPost)
-      if (postgresBlogPost) {
-        blogPost = postgresBlogPost
-        void redis.set(title, JSON.stringify(postgresBlogPost), 'EX', 3600).catch((error) => {
+      const array = await postgres
+        .select()
+        .from(blog_posts)
+        .where(and(eq(blog_posts.title, title), eq(blog_posts.is_published, true)))
+        .limit(1)
+      blogPost = array[0]
+      if (blogPost) {
+        void redis.set(title, JSON.stringify(blogPost), 'EX', 3600).catch((error) => {
           console.error(error)
         })
       } else {

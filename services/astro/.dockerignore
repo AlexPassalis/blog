@@ -1,0 +1,7 @@
+dist/
+.astro/
+.vscode/
+node_modules/
+.dockerignore
+.prettierrc.mjs
+Dockerfile
