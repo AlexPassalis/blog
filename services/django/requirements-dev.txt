@@ -1,0 +1,8 @@
+-r requirements.txt
+
+mypy==1.17.1
+django-stubs==5.2.2
+djangorestframework-stubs==3.16.2
+pytest==8.4.1
+pytest-django==4.11.1
+testcontainers[postgres]==4.12.0

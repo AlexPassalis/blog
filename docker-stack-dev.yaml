@@ -1,0 +1,82 @@
+networks:
+  network-alexpassalis:
+    external: true
+
+volumes:
+  postgres:
+
+secrets:
+  ALEXPASSALIS_DJANGO_SECRET_KEY:
+    external: true
+  ALEXPASSALIS_POSTGRES_DB:
+    external: true
+  ALEXPASSALIS_POSTGRES_USER:
+    external: true
+  ALEXPASSALIS_POSTGRES_PASSWORD:
+    external: true
+  ALEXPASSALIS_POSTGRES_URL:
+    external: true
+
+services:
+  dozzle:
+    image: amir20/dozzle
+    networks:
+      - network-alexpassalis
+    environment:
+      - DOZZLE_NO_ANALYTICS=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - '8080:8080'
+
+  postgres:
+    image: image-alexpassalis-postgres
+    networks:
+      - network-alexpassalis
+    secrets:
+      - ALEXPASSALIS_POSTGRES_DB
+      - ALEXPASSALIS_POSTGRES_USER
+      - ALEXPASSALIS_POSTGRES_PASSWORD
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB_FILE: /run/secrets/ALEXPASSALIS_POSTGRES_DB
+      POSTGRES_USER_FILE: /run/secrets/ALEXPASSALIS_POSTGRES_USER
+      POSTGRES_PASSWORD_FILE: /run/secrets/ALEXPASSALIS_POSTGRES_PASSWORD
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  pgweb:
+    image: sosedoff/pgweb
+    networks:
+      - network-alexpassalis
+    secrets:
+      - ALEXPASSALIS_POSTGRES_URL
+    entrypoint: ['/bin/sh']
+    command:
+      - -c
+      - 'pgweb --url "$$(cat /run/secrets/ALEXPASSALIS_POSTGRES_URL)?sslmode=disable" --bind 0.0.0.0 --listen 8081'
+    ports:
+      - '8081:8081'
+
+  django:
+    image: image-alexpassalis-django
+    networks:
+      - network-alexpassalis
+    secrets:
+      - ALEXPASSALIS_DJANGO_SECRET_KEY
+      - ALEXPASSALIS_POSTGRES_URL
+    volumes:
+      - ./services/django:/app
+    ports:
+      - '8000:8000' ### NEEDS FIXING remove when the nginx container comes in
+
+  nextjs:
+    image: image-alexpassalis-nextjs
+    networks:
+      - network-alexpassalis
+    volumes:
+      - ./services/nextjs:/app
+      - /app/node_modules
+    ports:
+      - '3000:3000' ### NEEDS FIXING remove when the nginx container comes in

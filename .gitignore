@@ -1,0 +1,11 @@
+.husky/_/
+.mypy_cache/
+.venv/
+secrets/
+
+__pycache__/
+migrations/
+
+.next/
+node_modules/
+.pnpm-store/

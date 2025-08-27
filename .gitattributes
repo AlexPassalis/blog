@@ -1,12 +1,2 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-
-*.key filter=git-crypt diff=git-crypt
-*.pem filter=git-crypt diff=git-crypt
-*.conf filter=git-crypt diff=git-crypt
-
-*envServer.ts filter=git-crypt diff=git-crypt
-*envClient.ts filter=git-crypt diff=git-crypt
-*readSecret.ts filter=git-crypt diff=git-crypt
-
-**/better-auth/** filter=git-crypt diff=git-crypt
