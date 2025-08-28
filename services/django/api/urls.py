@@ -5,11 +5,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from api.views import (
-    api_user_register,
-    CookiesObtainView,
-    CookieRefreshView,
-)
+from api.views import api_user_register, CookiesObtainView, CookieRefreshView, api_blogs
 
 urlpatterns = [
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
@@ -34,7 +30,7 @@ urlpatterns = [
         CookieRefreshView.as_view(),
         name="api_auth_token_refresh",
     ),
-    # path("blogs/", api_blogs, name="api_blogs"),
+    path("blogs/", api_blogs, name="api_blogs"),
     #     path("blogs/<slug:slug>/", ApiBlogsSlugView.as_view(), name="api_blogs_slug"),
     #     path("blogs/id/<uuid:id>/", blogs_id, name="blogs_id"),
     #     path(

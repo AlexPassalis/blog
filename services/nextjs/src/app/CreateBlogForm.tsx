@@ -2,31 +2,23 @@
 
 import { useForm } from '@mantine/form'
 import { zod4Resolver } from 'mantine-form-zod-resolver'
-import { zodUserLogin } from '@/data/zod/index'
+import { zodBlogWrite } from '@/data/zod/index'
 import { fetchClient } from '@/lib/openapi-fetch/client'
 
-import {
-  Button,
-  Checkbox,
-  PasswordInput,
-  TextInput,
-  Text,
-  Anchor,
-} from '@mantine/core'
-import Link from 'next/link'
+import { TextInput, Button } from '@mantine/core'
 
-export function LoginForm() {
+export function CreateBlogForm() {
   const form = useForm({
     mode: 'uncontrolled',
-    initialValues: { email: '', password: '' },
-    validate: zod4Resolver(zodUserLogin),
+    initialValues: { title: '', content: '' },
+    validate: zod4Resolver(zodBlogWrite),
   })
 
   return (
     <form
       onSubmit={form.onSubmit(async (formValues) => {
         const { error, data } = await fetchClient.POST(
-          '/api/auth/token/obtain/',
+          '/api/blogs/',
           {
             body: formValues,
           },
@@ -39,13 +31,12 @@ export function LoginForm() {
       })}
     >
       <TextInput
-        label="Email"
-        placeholder="email@domain.com"
+        label="Title"
+        placeholder="The title to my blog."
         size="md"
         radius="md"
-        autoComplete="email"
-        key={form.key('email')}
-        {...form.getInputProps('email')}
+        key={form.key('title')}
+        {...form.getInputProps('title')}
         styles={{
           error: {
             whiteSpace: 'pre-line',
@@ -53,14 +44,13 @@ export function LoginForm() {
           },
         }}
       />
-      <PasswordInput
-        label="Password"
-        placeholder="Your password"
+      <TextInput
+        label="Content"
+        placeholder="The content to my blog."
         size="md"
         radius="md"
-        autoComplete="new-password"
-        key={form.key('password')}
-        {...form.getInputProps('password')}
+        key={form.key('content')}
+        {...form.getInputProps('content')}
         styles={{
           error: {
             whiteSpace: 'pre-line',
@@ -69,14 +59,8 @@ export function LoginForm() {
         }}
       />
       <Button type="submit" fullWidth mt="lg" size="md" radius="md">
-        Login
+        Create Blog
       </Button>
-      <Text ta="center" mt="md">
-        Already have an account?{' '}
-        <Anchor component={Link} href="/auth/login" fw={500} prefetch>
-          Register
-        </Anchor>
-      </Text>
     </form>
   )
 }

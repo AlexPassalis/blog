@@ -97,50 +97,53 @@ def _cookie_common(path: str):
             "password": serializers.CharField(write_only=True),
         },
     ),
-    responses=(
-        {
-            200: inline_serializer(
-                name="AuthOK",
-                fields={"detail": serializers.CharField(read_only=True)},
-            )
-        }
-    ),
+    responses={
+        200: inline_serializer(
+            name="AuthOK",
+            fields={"detail": serializers.CharField(read_only=True)},
+        )
+    },
 )
 class CookiesObtainView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         res = super().post(request, *args, **kwargs)
+
         access_token = res.data.get("access")
         refresh_token = res.data.get("refresh")
         if not access_token or not refresh_token:
             return res  # let SimpleJWT handle errors
 
-        access_age = int(settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds())
-        refresh_age = int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds())
+        access_token_age = int(
+            settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds()
+        )
+        refresh_token_age = int(
+            settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()
+        )
 
         res.set_cookie(
-            "access", access_token, max_age=access_age, **_cookie_common("/")
+            "access", access_token, max_age=access_token_age, **_cookie_common("/")
         )
-        # Scope refresh cookie only to the refresh endpoint
         res.set_cookie(
             "refresh",
             refresh_token,
-            max_age=refresh_age,
-            **_cookie_common("/auth/token/refresh/"),
+            max_age=refresh_token_age,
+            **_cookie_common("/api/auth/token/refresh/"),
         )
 
         res.data = {"detail": "login successful"}
+
+        return res
 
 
 @extend_schema(
     description="Refresh access token using the `refresh` cookie.",
     request=inline_serializer(name="NoBody", fields={}),
-    responses=(
-        {
-            200: inline_serializer(
-                name="RefreshOK", fields={"detail": serializers.CharField()}
-            )
-        }
-    ),
+    responses={
+        200: inline_serializer(
+            name="RefreshOK",
+            fields={"detail": serializers.CharField()},
+        )
+    },
 )
 class CookieRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
@@ -154,23 +157,27 @@ class CookieRefreshView(TokenRefreshView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        access = data.get("access")
-        new_refresh = data.get("refresh")  # present if ROTATE_REFRESH_TOKENS=True
+        access_token = data.get("access")
+        new_refresh_token = data.get("refresh")
 
         res = Response({"detail": "refreshed"})
 
-        access_age = int(settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds())
-        res.set_cookie("access", access, max_age=access_age, **_cookie_common("/"))
+        access_token_age = int(
+            settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds()
+        )
+        res.set_cookie(
+            "access", access_token, max_age=access_token_age, **_cookie_common("/")
+        )
 
-        if new_refresh:
+        if new_refresh_token:
             refresh_age = int(
                 settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()
             )
             res.set_cookie(
                 "refresh",
-                new_refresh,
+                new_refresh_token,
                 max_age=refresh_age,
-                **_cookie_common("/auth/token/refresh/"),
+                **_cookie_common("/api/auth/token/refresh/"),
             )
 
         return res
@@ -217,14 +224,6 @@ def api_blogs(request: Request):
                 BlogReadSerializer(blog).data, status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class ApiBlogsSlugView(generics.RetrieveAPIView):
-#     lookup_field = "slug"
-#     queryset = Blog.objects.filter(
-#         is_public=True,
-#     )
-#     serializer_class = BlogSerializer
 
 
 # @api_view(

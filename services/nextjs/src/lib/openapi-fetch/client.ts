@@ -4,4 +4,5 @@ import { BASE_URL_CLIENT } from '@/data/env/client'
 
 export const fetchClient = createClient<paths>({
   baseUrl: BASE_URL_CLIENT,
+  credentials: 'same-origin',
 })

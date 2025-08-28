@@ -23,14 +23,14 @@ def check(last_name: str, expected_message: str):
 
 
 @pytest.mark.django_db
-def test_empty_string():
+def test_last_name_empty_string():
     empty_string = ""
     assert len(empty_string) == 0
     check(empty_string, "This field may not be blank.")
 
 
 @pytest.mark.django_db
-def test_maximum_length():
+def test_last_name_maximum_length():
     too_long_last_name = "Aa" * 16 + "A"  # 2 * 16 = 32 + "A" = 33 characters
     assert len(too_long_last_name) == 33
     check(
@@ -40,7 +40,7 @@ def test_maximum_length():
 
 
 @pytest.mark.django_db
-def test_has_invalid_character():
+def test_last_name_has_invalid_character():
     check(
         "lastname/",
         "Last name may only contain letters.",
@@ -48,5 +48,5 @@ def test_has_invalid_character():
 
 
 @pytest.mark.django_db
-def test_has_space():
+def test_last_name_has_space():
     check("last name", "Last name may only contain letters.")

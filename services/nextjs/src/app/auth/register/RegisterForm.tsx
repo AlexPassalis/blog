@@ -132,13 +132,7 @@ export function RegisterForm() {
       </Button>
       <Text ta="center" mt="md">
         Don&rsquo;t have an account?{' '}
-        <Anchor
-          component={Link}
-          href="/auth/login"
-          target="_blank"
-          fw={500}
-          prefetch
-        >
+        <Anchor component={Link} href="/auth/login" fw={500} prefetch>
           Login
         </Anchor>
       </Text>

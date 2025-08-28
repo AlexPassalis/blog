@@ -14,7 +14,7 @@ class UserRegisterResponseData(TypedDict):
 
 
 @pytest.mark.django_db
-def test_valid():
+def test_api_user_register_valid_request():
     client = APIClient()
     url = reverse("api_user_register")
     payload = {

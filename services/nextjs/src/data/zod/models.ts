@@ -105,3 +105,14 @@ export const zodUser = z.object({
     .max(254, { message: 'Email must not contain more than 254 characters.' }),
   password: zodPassword,
 })
+
+export const zodBlog = z.object({
+  id: z.uuidv4(),
+  is_public: z.boolean(),
+  slug: z.string(),
+  author: z.string(),
+  title: z.string(),
+  content: z.string(),
+  created_at: z.date(),
+  last_updated_at: z.date(),
+})

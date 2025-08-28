@@ -25,14 +25,14 @@ def check(username: str, expected_message: str):
 
 
 @pytest.mark.django_db
-def test_empty_string():
+def test_username_empty_string():
     empty_string = ""
     assert len(empty_string) == 0
     check(empty_string, "This field may not be blank.")
 
 
 @pytest.mark.django_db
-def test_minimum_length():
+def test_username_minimum_length():
     too_short_password = "usern"
     assert len(too_short_password) == 5
     check(
@@ -42,7 +42,7 @@ def test_minimum_length():
 
 
 @pytest.mark.django_db
-def test_maximum_length():
+def test_username_maximum_length():
     too_long_username = "username" * 2 + "A"  # 8 * 2 = 16 + "A" = 17 characters
     assert len(too_long_username) == 17
     check(

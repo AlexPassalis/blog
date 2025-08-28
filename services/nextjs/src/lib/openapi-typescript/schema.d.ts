@@ -55,12 +55,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/blogs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List public blogs. */
+        get: operations["blogs_list"];
+        put?: never;
+        /** @description Create a blog post. */
+        post: operations["blogs_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         AuthOK: {
             readonly detail: string;
+        };
+        BlogRead: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly slug: string;
+            readonly author: number;
+            title: string;
+            content: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly last_updated_at: string;
+        };
+        BlogWrite: {
+            title: string;
+            content: string;
         };
         RefreshOK: {
             detail: string;
@@ -178,6 +212,68 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["RefreshOK"];
                 };
+            };
+        };
+    };
+    blogs_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlogRead"][];
+                };
+            };
+        };
+    };
+    blogs_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BlogWrite"];
+                "application/x-www-form-urlencoded": components["schemas"]["BlogWrite"];
+                "multipart/form-data": components["schemas"]["BlogWrite"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlogRead"];
+                };
+            };
+            /** @description Validation errors (field -> list of errors). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Not authenticated. Log in and try again. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

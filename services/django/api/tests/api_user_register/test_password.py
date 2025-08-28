@@ -24,14 +24,14 @@ def check(password: str, expected_message: str):
 
 
 @pytest.mark.django_db
-def test_empty_string():
+def test_password_empty_string():
     empty_string = ""
     assert len(empty_string) == 0
     check(empty_string, "This field may not be blank.")
 
 
 @pytest.mark.django_db
-def test_minimum_length():
+def test_password_minimum_length():
     too_short_password = "Fail!11"
     assert len(too_short_password) == 7
     check(
@@ -41,7 +41,7 @@ def test_minimum_length():
 
 
 @pytest.mark.django_db
-def test_maximum_length():
+def test_password_maximum_length():
     too_long_password = "Aa1!" * 16 + "A"  # 4 * 16 = 64 + "A" = 65 characters
     assert len(too_long_password) == 65
     check(
@@ -51,7 +51,7 @@ def test_maximum_length():
 
 
 @pytest.mark.django_db
-def test_has_invalid_character():
+def test_password_has_invalid_character():
     check(
         "ValidPass1!/",
         "Password contains invalid character(s): /. Allowed symbols: !@#$%^&*()_+-=[]{};:,.?~.",
@@ -59,12 +59,12 @@ def test_has_invalid_character():
 
 
 @pytest.mark.django_db
-def test_has_space():
+def test_password_has_space():
     check("Testspa ce1!", "Password must not contain spaces.")
 
 
 @pytest.mark.django_db
-def test_missing_lowercase_letter():
+def test_password_missing_lowercase_letter():
     check(
         "ONLY_UPPERCASE_LETTERS1!",
         "Password must contain at least one lowercase letter.",
@@ -72,7 +72,7 @@ def test_missing_lowercase_letter():
 
 
 @pytest.mark.django_db
-def test_missing_uppercase_letter():
+def test_password_missing_uppercase_letter():
     check(
         "only_lowercase_letters1!",
         "Password must contain at least one uppercase letter.",
@@ -80,12 +80,12 @@ def test_missing_uppercase_letter():
 
 
 @pytest.mark.django_db
-def test_missing_digit():
+def test_password_missing_digit():
     check("Testdigit!", "Password must contain at least one digit.")
 
 
 @pytest.mark.django_db
-def test_missing_symbol():
+def test_password_missing_symbol():
     check(
         "Testsymbol1",
         "Password must contain at least one of: !@#$%^&*()_+-=[]{};:,.?~.",
@@ -93,10 +93,10 @@ def test_missing_symbol():
 
 
 @pytest.mark.django_db
-def test_too_common():
+def test_password_too_common():
     check("Password1!", "This password is too common.")
 
 
 @pytest.mark.django_db
-def test_too_common():  # NEEDS FIXING add test for username too similar to username.
+def test_password_too_common():  # NEEDS FIXING add test for username too similar to username.
     check("Password1!", "This password is too common.")
