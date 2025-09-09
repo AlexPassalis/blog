@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# git-crypt
+# *.env filter=git-crypt diff=git-crypt // NEEDS FIXING only for now.
+*.key filter=git-crypt diff=git-crypt
+*.pem filter=git-crypt diff=git-crypt

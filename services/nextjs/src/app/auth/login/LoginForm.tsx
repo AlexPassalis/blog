@@ -5,14 +5,7 @@ import { zod4Resolver } from 'mantine-form-zod-resolver'
 import { zodUserLogin } from '@/data/zod/index'
 import { fetchClient } from '@/lib/openapi-fetch/client'
 
-import {
-  Button,
-  Checkbox,
-  PasswordInput,
-  TextInput,
-  Text,
-  Anchor,
-} from '@mantine/core'
+import { Button, PasswordInput, TextInput, Text, Anchor } from '@mantine/core'
 import Link from 'next/link'
 
 export function LoginForm() {
@@ -73,7 +66,7 @@ export function LoginForm() {
       </Button>
       <Text ta="center" mt="md">
         Already have an account?{' '}
-        <Anchor component={Link} href="/auth/login" fw={500} prefetch>
+        <Anchor component={Link} href="/auth/register" fw={500} prefetch>
           Register
         </Anchor>
       </Text>

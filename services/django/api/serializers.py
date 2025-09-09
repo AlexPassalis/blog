@@ -93,22 +93,27 @@ class UserLoginSerializer(serializers.ModelSerializer):
         fields = ["email", "password"]
 
     def validate(self, attrs):
-        user = authenticate(email=attrs.get("email"), )
+        user = authenticate(
+            email=attrs.get("email"),
+        )
 
 
 class BlogReadSerializer(serializers.ModelSerializer):
+    author = serializers.CharField(source="author.username", read_only=True)
+
     class Meta:
         model = Blog
-        fields = [
+        fields = (
             "id",
-            "slug",
+            "is_public",
             "author",
+            "slug",
             "title",
             "content",
             "created_at",
             "last_updated_at",
-        ]
-        read_only_fields = ["id", "slug", "author", "created_at", "last_updated_at"]
+        )
+        read_only_fields = ["id", "author", "slug", "created_at", "last_updated_at"]
 
 
 class BlogWriteSerializer(serializers.ModelSerializer):

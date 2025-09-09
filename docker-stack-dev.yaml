@@ -62,14 +62,14 @@ services:
   django:
     image: image-alexpassalis-django
     networks:
-      - network-alexpassalis
+      network-alexpassalis:
+        aliases:
+          - stack-alexpassalis-django
     secrets:
       - ALEXPASSALIS_DJANGO_SECRET_KEY
       - ALEXPASSALIS_POSTGRES_URL
     volumes:
       - ./services/django:/app
-    ports:
-      - '8000:8000' ### NEEDS FIXING remove when the nginx container comes in
 
   nextjs:
     image: image-alexpassalis-nextjs
@@ -78,5 +78,13 @@ services:
     volumes:
       - ./services/nextjs:/app
       - /app/node_modules
+
+  nginx:
+    image: image-alexpassalis-nginx
+    networks:
+      - network-alexpassalis
+    volumes:
+      - ./services/nginx/certs:/etc/nginx/certs:ro
+      - ./services/nginx/nginx-development.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - '3000:3000' ### NEEDS FIXING remove when the nginx container comes in
+      - '443:443'

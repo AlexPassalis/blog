@@ -8,6 +8,7 @@ docker-dev:
 	docker build -t image-alexpassalis-postgres -f ./services/postgres/Dockerfile ./services/postgres
 	docker build --target dev -t image-alexpassalis-django -f ./services/django/Dockerfile ./services/django
 	docker build --target dev -t image-alexpassalis-nextjs -f ./services/nextjs/Dockerfile ./services/nextjs
+	docker build -t image-alexpassalis-nginx -f ./services/nginx/Dockerfile ./services/nginx
 	# docker network create -d overlay network-alexpassalis
 	docker stack deploy -c ./docker-stack-dev.yaml --detach=false --with-registry-auth stack-alexpassalis
 

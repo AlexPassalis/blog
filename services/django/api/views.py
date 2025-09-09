@@ -1,3 +1,7 @@
+from typing import Type, cast
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
+
 from ast import alias
 from rest_framework import generics
 from django.contrib.auth.models import User
@@ -27,6 +31,7 @@ from drf_spectacular.utils import (
     extend_schema,
     OpenApiResponse,
     OpenApiExample,
+    OpenApiParameter,
 )
 from drf_spectacular.types import OpenApiTypes
 from .models import Blog
@@ -34,6 +39,8 @@ from .models import Blog
 # from uuid import UUID
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
+
+from django.shortcuts import get_object_or_404
 
 
 @extend_schema(
@@ -70,13 +77,12 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_seriali
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def api_user_register(request: Request):
-    if request.method == "POST":
-        serializer = UserWriteSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            read = UserReadSerializer(user)
-            return Response(read.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = UserWriteSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        read = UserReadSerializer(user)
+        return Response(read.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def _cookie_common(path: str):
@@ -147,7 +153,7 @@ class CookiesObtainView(TokenObtainPairView):
 )
 class CookieRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get("refresh") or request.data.get("refresh")
+        refresh_token = request.COOKIES.get("refresh")
         if refresh_token is None:
             from rest_framework.exceptions import AuthenticationFailed
 
@@ -226,18 +232,42 @@ def api_blogs(request: Request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @api_view(
-#     [
-#         "GET",
-#     ]
-# )
-# def blogs_slug(request: Request, slug: str):
-#     blog = get_object_or_404(
-#         Blog, slug=slug
-#     )  # If user only if blog the is_public=True, if author always
+@extend_schema(
+    summary="List blogs by author",
+    description=(
+        "Returns all **public** blogs for the given author (`username`). "
+        "If the authenticated requester **is** that author (or staff), "
+        "returns **all** blogs including non-public."
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="username",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.PATH,
+            description="Author username.",
+            required=True,
+        ),
+    ],
+    responses={
+        200: BlogReadSerializer(many=True),
+        404: OpenApiResponse(description="Author not found."),
+    },
+    tags=["Blogs"],
+)
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def api_blogs_username(request: Request, username: str):
+    User = cast(Type[AbstractUser], get_user_model())
+    author = get_object_or_404(User, username=username)
 
-#     serializer = BlogSerializer(blog)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
+    qs = Blog.objects.filter(author=author).select_related("author")
+
+    is_author = request.user.is_authenticated and request.user.pk == author.pk
+    if not (is_author):
+        qs = qs.filter(is_public=True)
+
+    qs = qs.order_by("-created_at")
+    return Response(BlogReadSerializer(qs, many=True).data, status=status.HTTP_200_OK)
 
 
 # @api_view(["PATCH", "DELETE"])

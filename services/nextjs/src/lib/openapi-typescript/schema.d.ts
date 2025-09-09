@@ -73,6 +73,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/blogs/{username}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List blogs by author
+         * @description Returns all **public** blogs for the given author (`username`). If the authenticated requester **is** that author (or staff), returns **all** blogs including non-public.
+         */
+        get: operations["blogs_list_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -83,8 +103,9 @@ export interface components {
         BlogRead: {
             /** Format: uuid */
             readonly id: string;
+            is_public?: boolean;
+            readonly author: string;
             readonly slug: string;
-            readonly author: number;
             title: string;
             content: string;
             /** Format: date-time */
@@ -270,6 +291,35 @@ export interface operations {
             };
             /** @description Not authenticated. Log in and try again. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    blogs_list_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Author username. */
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlogRead"][];
+                };
+            };
+            /** @description Author not found. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
