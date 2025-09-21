@@ -26,5 +26,6 @@ CMD ["sh", "-c", "uvicorn main.asgi:application --host 0.0.0.0 --port ${PORT} --
 
 FROM base AS test
 ENV PYTHON_ENV=testing
+ENV TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal
 
 CMD ["pytest", "--maxfail=1", "-vv", "-s", "--showlocals"]

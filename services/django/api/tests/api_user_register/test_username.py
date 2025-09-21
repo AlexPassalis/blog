@@ -11,12 +11,13 @@ from typing import cast
 
 def check(username: str, expected_message: str):
     client = APIClient()
-    url = reverse("api_user_register")
+    url = reverse("api_auth_register")
     payload = {
         "first_name": "firstname",
         "last_name": "lastname",
         "username": username,
         "password": "!1Password",
+        "email": "user@example.com",
     }
     response = cast(Response, client.post(url, payload, format="json"))
 
@@ -54,12 +55,13 @@ def test_username_maximum_length():
 @pytest.mark.django_db
 def test_username_already_exists():
     client = APIClient()
-    url = reverse("api_user_register")
+    url = reverse("api_auth_register")
     payload = {
         "first_name": "firstname",
         "last_name": "lastname",
         "username": "username",
         "password": "!1Password",
+        "email": "user@example.com",
     }
 
     first = cast(Response, client.post(url, payload, format="json"))
@@ -71,4 +73,7 @@ def test_username_already_exists():
 
     second = cast(Response, client.post(url, payload, format="json"))
     assert second.status_code == status.HTTP_400_BAD_REQUEST
-    assert second.data == {"username": ["A user with that username already exists."]}
+    assert second.data == {
+        "username": ["A user with that username already exists."],
+        "email": ["A user with this email already exists."],
+    }

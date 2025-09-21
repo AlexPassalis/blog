@@ -126,6 +126,7 @@ export interface components {
             password: string;
         };
         UserRead: {
+            readonly id: number;
             first_name: string;
             last_name: string;
             /** @description Letters, digits and @/./+/-/_ only allowed. */

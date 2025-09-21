@@ -76,7 +76,7 @@ from django.shortcuts import get_object_or_404
 )
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def api_user_register(request: Request):
+def api_auth_register(request: Request):
     serializer = UserWriteSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()

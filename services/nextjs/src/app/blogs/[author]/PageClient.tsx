@@ -69,10 +69,12 @@ export function PageClient({
 
   return (
     <main className="p-8">
-      {blogs.map(({ title, author, content }, index) => (
+      {blogs.map(({ id, title, author, content }, index, array) => (
         <section
-          key={index}
-          className="text-black bg-white rounded-lg p-4 w-1/3 mx-auto mb-4"
+          key={id}
+          className={`text-black bg-white w-1/3 mx-auto p-4 rounded-lg ${
+            index + 1 !== array.length ? 'mb-4' : ''
+          }`}
         >
           <h1 className="text-center text-3xl">{title}</h1>
           <h2 className="text-2xl">{author}</h2>
@@ -82,7 +84,7 @@ export function PageClient({
       <CreateBlogForm
         fetchClient={fetchClientInstance}
         setBlogs={setBlogs}
-        className="mt-12"
+        className="mt-8"
       />
     </main>
   )

@@ -6,7 +6,7 @@ from drf_spectacular.views import (
 )
 
 from api.views import (
-    api_user_register,
+    api_auth_register,
     CookiesObtainView,
     CookieRefreshView,
     api_blogs,
@@ -25,7 +25,7 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    path("auth/register/", api_user_register, name="api_auth_register"),
+    path("auth/register/", api_auth_register, name="api_auth_register"),
     path(
         "auth/token/obtain/",
         CookiesObtainView.as_view(),

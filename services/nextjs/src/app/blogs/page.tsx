@@ -16,10 +16,12 @@ export default async function Home() {
 
   return (
     <main className="p-8">
-      {data.map(({ title, author, content }, index) => (
+      {data.map(({ id, title, author, content }, index, array) => (
         <section
-          key={index}
-          className="text-black bg-white w-1/3 mx-auto p-4 rounded-lg"
+          key={id}
+          className={`text-black bg-white w-1/3 mx-auto p-4 rounded-lg ${
+            index + 1 !== array.length ? 'mb-4' : ''
+          }`}
         >
           <h1 className="text-center text-3xl">{title}</h1>
           <h2 className="text-2xl">{author}</h2>

@@ -20,9 +20,9 @@ def django_db_setup(
     postgres_container: PostgresContainer, django_db_blocker: DjangoDbBlocker
 ):
     with django_db_blocker.unblock():
-        ALEXPASSALIS_POSTGRES_URL = postgres_container.get_connection_url(driver=None)
-        os.environ["ALEXPASSALIS_POSTGRES_URL"] = (
-            ALEXPASSALIS_POSTGRES_URL  # does not work NEEDS FIXING
+        BLOG_POSTGRES_URL = postgres_container.get_connection_url(driver=None)
+        os.environ["BLOG_POSTGRES_URL"] = (
+            BLOG_POSTGRES_URL  # NEEDS FIXING does not work.
         )
         call_command("makemigrations", "api", verbosity=0)
         call_command("migrate", "api", verbosity=0)

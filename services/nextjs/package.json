@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.14.0",
   "scripts": {
-    "openapi": "npx openapi-typescript http://stack-alexpassalis-django:8000/api/schema/ -o ./src/lib/openapi-typescript/schema.d.ts",
+    "openapi": "npx openapi-typescript http://stack-blog-django:8000/api/schema/ -o ./src/lib/openapi-typescript/schema.d.ts",
     "lint": "next lint",
     "dev": "next dev",
     "build": "next build",

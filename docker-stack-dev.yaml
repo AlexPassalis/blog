@@ -1,27 +1,27 @@
 networks:
-  network-alexpassalis:
+  network-blog:
     external: true
 
 volumes:
   postgres:
 
 secrets:
-  ALEXPASSALIS_DJANGO_SECRET_KEY:
+  BLOG_DJANGO_SECRET_KEY:
     external: true
-  ALEXPASSALIS_POSTGRES_DB:
+  BLOG_POSTGRES_DB:
     external: true
-  ALEXPASSALIS_POSTGRES_USER:
+  BLOG_POSTGRES_USER:
     external: true
-  ALEXPASSALIS_POSTGRES_PASSWORD:
+  BLOG_POSTGRES_PASSWORD:
     external: true
-  ALEXPASSALIS_POSTGRES_URL:
+  BLOG_POSTGRES_URL:
     external: true
 
 services:
   dozzle:
     image: amir20/dozzle
     networks:
-      - network-alexpassalis
+      - network-blog
     environment:
       - DOZZLE_NO_ANALYTICS=true
     volumes:
@@ -30,59 +30,60 @@ services:
       - '8080:8080'
 
   postgres:
-    image: image-alexpassalis-postgres
+    image: image-blog-postgres
     networks:
-      - network-alexpassalis
+      - network-blog
     secrets:
-      - ALEXPASSALIS_POSTGRES_DB
-      - ALEXPASSALIS_POSTGRES_USER
-      - ALEXPASSALIS_POSTGRES_PASSWORD
+      - BLOG_POSTGRES_DB
+      - BLOG_POSTGRES_USER
+      - BLOG_POSTGRES_PASSWORD
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
-      POSTGRES_DB_FILE: /run/secrets/ALEXPASSALIS_POSTGRES_DB
-      POSTGRES_USER_FILE: /run/secrets/ALEXPASSALIS_POSTGRES_USER
-      POSTGRES_PASSWORD_FILE: /run/secrets/ALEXPASSALIS_POSTGRES_PASSWORD
+      POSTGRES_DB_FILE: /run/secrets/BLOG_POSTGRES_DB
+      POSTGRES_USER_FILE: /run/secrets/BLOG_POSTGRES_USER
+      POSTGRES_PASSWORD_FILE: /run/secrets/BLOG_POSTGRES_PASSWORD
     volumes:
       - postgres:/var/lib/postgresql/data
 
   pgweb:
     image: sosedoff/pgweb
     networks:
-      - network-alexpassalis
+      - network-blog
     secrets:
-      - ALEXPASSALIS_POSTGRES_URL
+      - BLOG_POSTGRES_URL
     entrypoint: ['/bin/sh']
     command:
       - -c
-      - 'pgweb --url "$$(cat /run/secrets/ALEXPASSALIS_POSTGRES_URL)?sslmode=disable" --bind 0.0.0.0 --listen 8081'
+      - 'pgweb --url "$$(cat /run/secrets/BLOG_POSTGRES_URL)?sslmode=disable" --bind 0.0.0.0 --listen 8081'
     ports:
       - '8081:8081'
 
   django:
-    image: image-alexpassalis-django
+    image: image-blog-django
     networks:
-      network-alexpassalis:
+      network-blog:
         aliases:
-          - stack-alexpassalis-django
+          - stack-blog-django
     secrets:
-      - ALEXPASSALIS_DJANGO_SECRET_KEY
-      - ALEXPASSALIS_POSTGRES_URL
+      - BLOG_DJANGO_SECRET_KEY
+      - BLOG_POSTGRES_URL
     volumes:
       - ./services/django:/app
 
   nextjs:
-    image: image-alexpassalis-nextjs
+    image: image-blog-nextjs
     networks:
-      - network-alexpassalis
+      - network-blog
     volumes:
       - ./services/nextjs:/app
       - /app/node_modules
+      - /app/.next
 
   nginx:
-    image: image-alexpassalis-nginx
+    image: image-blog-nginx
     networks:
-      - network-alexpassalis
+      - network-blog
     volumes:
       - ./services/nginx/certs:/etc/nginx/certs:ro
       - ./services/nginx/nginx-development.conf:/etc/nginx/nginx.conf:ro

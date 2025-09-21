@@ -10,12 +10,13 @@ from typing import cast
 
 def check(password: str, expected_message: str):
     client = APIClient()
-    url = reverse("api_user_register")
+    url = reverse("api_auth_register")
     payload = {
         "first_name": "firstname",
         "last_name": "lastname",
         "username": "username",
         "password": password,
+        "email": "user@example.com",
     }
     response = cast(Response, client.post(url, payload, format="json"))
 
